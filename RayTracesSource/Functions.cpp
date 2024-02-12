@@ -5,7 +5,8 @@
 
 #include "Utilities.cpp" 
 #include "Functions.h" 
-#include "rayTracer.h"
+#include "RayTracer.h"
+#include "Utilities.h"
 
 //kx+b
 class LinearFunction {
@@ -18,16 +19,16 @@ public:
     }
 
     double reversedEvaluateLinearFunction(double x) const {
-        return k * -x + imageSize + b;
+        return k * -x + imageHeight + b;
     }
 
 
     bool belongsToFunction(double x, double y) const {
-        return std::abs(y - evaluateLinearFunction(x)) <= thickness;
+        return std::abs(y - evaluateLinearFunction(x)) <= double(thickness / 2);
     }
 
     bool belongsToReversedFunction(double x, double y) const {
-        return std::abs(y - reversedEvaluateLinearFunction(x)) <= thickness;
+        return std::abs(y - reversedEvaluateLinearFunction(x)) <= double(thickness / 2);
     }
 
 private:
@@ -50,7 +51,7 @@ public:
         double radiusSquared = std::pow(radius, 2);
         double difference = std::abs(distanceSquared - radiusSquared);
 
-        return difference <= 50;
+        return difference <= double(thickness / 2);
     }
 
     bool isInCircle(double x, double y) const {
@@ -61,7 +62,6 @@ public:
 private:
     Vec2 center;
     double radius;
-    const double epsilon = 1e-9; // Small value for floating-point comparison
 };
 
 //(a(x-offset))^2
@@ -81,16 +81,35 @@ public:
     //вітки вниз
     bool belongsToFunction(double x, double y) {
         // Порівнюємо відстань між y пікселя та значенням параболи з половиною товщини
-        return std::abs(y - evaluateParabolaFunction(x)) <= thickness;
+        return std::abs(y - evaluateParabolaFunction(x)) <= double(thickness / 2);
     }
 
 
     //вітки вгору
     bool belongsToReversedFunction(double x, double y) const {
-        return std::abs(y - evaluateReversedParabolaFunction(x)) <= thickness;
+        return std::abs(y - evaluateReversedParabolaFunction(x)) <= double(thickness/2);
     }
 
 private:
     double a;
     double offset;
+};
+
+class SphereFunction {
+public:
+    SphereFunction(Vec3 center, double radius)
+        : center(center), radius(radius) {}
+
+    double evaluateSphereFunction(int x, int y, int z) const {
+        return pow((x - center.x), 2) + pow((y - center.y), 2) + pow((z - center.z), 2);
+    }
+
+    bool isSphere(int x, int y, int z) const {
+        return evaluateSphereFunction(x, y, z) == pow(radius, 2);
+    }
+
+
+private:
+    Vec3 center;
+    double radius;
 };

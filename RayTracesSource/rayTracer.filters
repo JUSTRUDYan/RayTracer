@@ -29,7 +29,10 @@
     <ClInclude Include="Functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="rayTracer.h">
+    <ClInclude Include="RayTracer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

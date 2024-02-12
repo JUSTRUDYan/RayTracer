@@ -1,7 +1,8 @@
 #pragma once
-#include <iostream>
+#include <string>
 
 const std::string directoryPath = "C:\\Users\\steam\\";
 const std::string filePath = directoryPath + "gradient.ppm";
-const int imageSize = 256;
+const int imageWidth = 255;
+const int imageHeight =256;
 const int thickness = 15;
