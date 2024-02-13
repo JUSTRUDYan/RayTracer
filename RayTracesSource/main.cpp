@@ -3,11 +3,16 @@
 #include <fstream>
 #include <cmath>
 
-#include "RayTracer.h" 
 #include "Utilities.h"
-#include "Functions.h"
+#include "FunctionsTracer.h"
+#include "RayTracer.h"
 
 int main() {
+
+    if (imageHeight < 0) {
+        std::cout << "imageHeight < 0 - true";
+        exit(0);
+    }
 
     std::ofstream outputFile(filePath);
 
@@ -21,22 +26,20 @@ int main() {
 
     std::cin >> choose;
 
-    if (choose == 1)
-        generationLinearFunction(outputFile);
-    else if (choose == 2)
-        generationParabolaFunction(outputFile);
-    else if (choose == 3)
-        generationCircleFunction(outputFile);
-    else if (choose == 4)
-        generationGradient(outputFile);
-    else if (choose == 5)
-        generationSphereFunction(outputFile);
+    //if (choose == 1)
+    //    generationLinearFunction(outputFile);
+    //else if (choose == 2)
+    //    generationParabolaFunction(outputFile);
+    //else if (choose == 3)
+    //    generationCircleFunction(outputFile);
+    //else if (choose == 4)
+    //    generationGradient(outputFile);
+    //else if (choose == 5)
+    //    generationSphereFunction(outputFile);
+
+    render(outputFile);
 
     outputFile.close();
-
-
-
-    Vec3 origin(1.0, 2.0, 3.0);
 
     return 0;
 }

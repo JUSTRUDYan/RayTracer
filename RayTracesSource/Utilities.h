@@ -1,5 +1,21 @@
 ﻿#pragma once
 
+#include <fstream>
+
+const std::string directoryPath = "C:\\Users\\steam\\";
+const std::string filePath = directoryPath + "gradient.ppm";
+
+const double aspect_ratio = 16.0 / 9.0;
+const int imageWidth = 400;
+const int imageHeight = static_cast<int>(imageWidth / aspect_ratio);
+const double focalLength = 1.0;
+
+const double viewport_height = 2.0;
+const double viewport_width = viewport_height * (static_cast<double>(imageWidth) / imageHeight);
+
+const int thickness = 15;
+
+
 class Vec2 {
 public:
     Vec2(int x, int y) : x(x), y(y) {}
@@ -15,34 +31,44 @@ public:
     Vec3() : x(0), y(0), z(0) {}
     Vec3(double x, double y, double z) : x(x), y(y), z(z) {}
 
+    Vec3 unitVector() const {
+        double length = std::sqrt(x * x + y * y + z * z);
+        return Vec3(x / length, y / length, z / length);
+    }
+
     Vec3 operator+(const Vec3& other) const {
         return Vec3(x + other.x, y + other.y, z + other.z);
+    }
+
+    Vec3 operator-(const Vec3& other) const {
+        return Vec3(x - other.x, y - other.y, z - other.z);
     }
 
     Vec3 operator*(double scalar) const {
         return Vec3(x * scalar, y * scalar, z * scalar);
     }
+
+    Vec3 operator*(Vec3 other) const {
+        return Vec3(x * other.x, y * other.y, z * other.z);
+    }
+
+    Vec3 operator/(double scalar) const {
+        return Vec3(x / scalar, y / scalar, z / scalar);
+    }
 };
 
 class Color {
 public:
-    Color(uint8_t r = 0, uint8_t g = 0, uint8_t b = 0) : r(r), g(g), b(b) {}
+    Color(double r = 0, double g = 0, double b = 0) : r(r), g(g), b(b) {}
 
     // Set color(0-255) based on one coordinate(∞)
-    void setColorBasedOnY(int y) {
-        setColor(Color(
-            static_cast<uint8_t>(255.999 * y / (imageHeight - 1)),
-            static_cast<uint8_t>(255.999 * y / (imageHeight - 1)),
-            static_cast<uint8_t>(255.999 * y / (imageHeight - 1))
-        ));
-    }
 
-    void setColorBasedOnX(int x) {
-        setColor(Color(
-            static_cast<uint8_t>(255.999 * x / (imageWidth - 1)),
-            static_cast<uint8_t>(255.999 * x / (imageWidth - 1)),
-            static_cast<uint8_t>(255.999 * x / (imageWidth - 1))
-        ));
+    std::ofstream& writeColor(std::ofstream& outputFile) {
+        // Write the translated [0,255] value of each color component.
+        outputFile << static_cast<int>(255.999 * r) << ' '
+            << static_cast<int>(255.999 * g) << ' '
+            << static_cast<int>(255.999 * b) << '\n';
+        return outputFile;
     }
 
     Color setColor(const Color& otherColor) {
@@ -57,21 +83,41 @@ public:
         return outputFile;
     }
 
+    Color operator+(const Color& other) const {
+        return Color(r + other.r, g + other.g, b + other.b);
+    }
+
+    Color operator-(const Color& other) const {
+        return Color(r - other.r, g - other.g, b - other.b);
+    }
+
+    Color operator*(double scalar) const {
+        return Color(r * scalar, g * scalar, b * scalar);
+    }
+
+    Color operator*(Color other) const {
+        return Color(r * other.r, g * other.g, b * other.b);
+    }
+
+    Color operator/(double scalar) const {
+        return Color(r / scalar, g / scalar, b / scalar);
+    }
+
 private:
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
+    double r;
+    double g;
+    double b;
 };
 
 class Ray {
 public:
-    Vec3 origin;
-    Vec3 direction;
-
     Ray(const Vec3& origin, const Vec3& direction)
         : origin(origin), direction(direction) {}
 
     Vec3 pointAtParameter(double t) const {
         return origin + direction * t;
     }
+
+    Vec3 origin;
+    Vec3 direction;
 };

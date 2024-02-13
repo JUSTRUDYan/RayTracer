@@ -129,10 +129,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="rayTracer.cpp" />
+    <ClCompile Include="FunctionsTracer.cpp" />
+    <ClCompile Include="RayTracer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Functions.h" />
+    <ClInclude Include="FunctionsTracer.h" />
+    <ClInclude Include="main.h" />
     <ClInclude Include="RayTracer.h" />
     <ClInclude Include="Utilities.h" />
   </ItemGroup>

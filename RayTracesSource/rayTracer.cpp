@@ -3,102 +3,31 @@
 #include <fstream>
 #include <cmath>
 
-#include "RayTracer.h"
 #include "Utilities.h"
-#include "Functions.h"
+#include "main.h"
 
-std::ofstream& generationLinearFunction(std::ofstream& outputFile) {
-    Color colorOfPixel;
-    LinearFunction linear(1.0, 0.0);
+Color ray_color(const Ray& r) {
+	// Нормалізуємо напрямок променю
+	Vec3 unit_direction = r.direction.unitVector();
 
-    for (int y = 0; y < imageHeight; y++) {
-        for (int x = 0; x < imageWidth; x++) {
-            if (linear.belongsToFunction(y, x)) {
-                colorOfPixel.setColor(Color(0, 0, 0));
-                colorOfPixel.outPut(outputFile);
-            }
-            else {
-                colorOfPixel.setColor(Color(255, 255, 255));
-                colorOfPixel.outPut(outputFile);
-            }
-        }
-    }
-    std::cout << "Image created successfully!\n";
-    return outputFile;
+	// Обчислюємо параметр 'a' для створення градієнту
+	double a = 0.5 * (unit_direction.y + 1.0);
+
+	// Лінійно змішуємо білий колір і синій колір відповідно до параметру 'a'
+	return Color(1.0, 1.0, 1.0) * (1.0 - a) + Color(0.5, 0.7, 1.0) * a;
 }
 
-std::ofstream& generationCircleFunction(std::ofstream& outputFile) {
-    Color colorOfPixel;
-    CircleFunction circle(Vec2(128, 128), 50.0);
-    for (int y = 0; y < imageHeight; y++) {
-        for (int x = 0; x < imageWidth; x++) {
-            if (circle.isInCircle(x, y)) { //or belongsToFunction
-                colorOfPixel.setColorBasedOnY(y);
-                colorOfPixel.outPut(outputFile);
-            }
-            else {
-                colorOfPixel.setColorBasedOnY(255 - y);
-                colorOfPixel.outPut(outputFile);
-            }
-        }
-    }
-    std::cout << "Image created successfully!\n";
-    return outputFile;
-}
+std::ofstream& render(std::ofstream& outputFile) {
+	for (int j = 0; j < imageHeight; ++j) {
+		std::clog << "\rScanlines remaining: " << (imageHeight - j) << ' ' << std::flush;
+		for (int i = 0; i < imageWidth; ++i) {
+			Vec3 pixel_center = pixel00_loc + (pixel_delta_u * i) + (pixel_delta_v * j);
+			Vec3 ray_direction = pixel_center - cameraCenter;
+			Ray r(cameraCenter, ray_direction);
 
-std::ofstream& generationSphereFunction(std::ofstream& outputFile) {
-    Color colorOfPixel;
-    SphereFunction sphere(Vec3(imageWidth/2, imageHeight/2, 128), 50.0);
-    for (int y = 0; y < imageHeight; y++) {
-        for (int x = 0; x < imageWidth; x++) {
-                if (sphere.isSphere(x, y, 128)) {
-                    colorOfPixel.setColor(Color(0, 0, 0));
-                    colorOfPixel.outPut(outputFile);
-                }
-                else {
-                    colorOfPixel.setColor(Color(255, 255, 255));
-                    colorOfPixel.outPut(outputFile);
-                }
-        }
-    }
-    std::cout << "Image created successfully!\n";
-    return outputFile;
-}
-
-std::ofstream& generationParabolaFunction(std::ofstream& outputFile) {
-    Color colorOfPixel;
-    ParabolaFunction Parabola(1, imageWidth / 2);
-    for (int y = 0; y < imageHeight; y++) {
-        for (int x = 0; x < imageWidth; x++) {
-            if (Parabola.belongsToReversedFunction(x, y)) {
-                colorOfPixel.setColor(0);
-                colorOfPixel.outPut(outputFile);
-            }
-            else {
-                colorOfPixel.setColor(Color(255,255,255));
-                colorOfPixel.outPut(outputFile);
-            }
-        }
-    }
-    std::cout << "Image created successfully!\n";
-    return outputFile;
-}
-
-std::ofstream& generationGradient(std::ofstream& outputFile) {
-    Color colorOfPixel;
-    LinearFunction linear(1.0, 0.0);
-    for (int y = 0; y < imageHeight; y++) {
-        for (int x = 0; x < imageWidth; x++) {
-            if (linear.belongsToReversedFunction(x, y)) {
-                colorOfPixel.setColorBasedOnX(255-x);
-                colorOfPixel.outPut(outputFile);
-            }
-            else {
-                colorOfPixel.setColorBasedOnX(x);
-                colorOfPixel.outPut(outputFile);
-            }
-        }
-    }
-    std::cout << "Image created successfully!\n";
-    return outputFile;
+			Color pixel_color = ray_color(r);
+			pixel_color.writeColor(outputFile);
+		}
+	}
+	    return outputFile;
 }

@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <cmath>
 
-
 //kx+b
 class LinearFunction {
 public:
