@@ -24,7 +24,6 @@ int main() {
         << "4: gradient" << std::endl
         << "5: sphere" << std::endl;
 
-    std::cin >> choose;
 
     //if (choose == 1)
     //    generationLinearFunction(outputFile);

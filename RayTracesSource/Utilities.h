@@ -44,6 +44,10 @@ public:
         return Vec3(x - other.x, y - other.y, z - other.z);
     }
 
+    Vec3 operator-(double scalar) const {
+        return Vec3(x - scalar, y - scalar, z - scalar);
+    }
+
     Vec3 operator*(double scalar) const {
         return Vec3(x * scalar, y * scalar, z * scalar);
     }
@@ -52,8 +56,16 @@ public:
         return Vec3(x * other.x, y * other.y, z * other.z);
     }
 
+    double ScalaringWith(Vec3 other) const {
+        return (x * other.x) + (y * other.y) + (z * other.z);
+    }
+
     Vec3 operator/(double scalar) const {
         return Vec3(x / scalar, y / scalar, z / scalar);
+    }
+
+    Vec3 operator^(double scalar) const {
+        return Vec3(pow(x, scalar), pow(y, scalar), pow(z, scalar));
     }
 };
 
@@ -121,3 +133,5 @@ public:
     Vec3 origin;
     Vec3 direction;
 };
+
+double knowDiscriminant(double a, double b, double c);
