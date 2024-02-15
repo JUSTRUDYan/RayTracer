@@ -1,28 +1,30 @@
 ﻿#pragma once
 
 #include <fstream>
+#include <cmath>
+#include <random>
+
+#include "Interval.h"
 
 const std::string directoryPath = "C:\\Users\\steam\\";
 const std::string filePath = directoryPath + "gradient.ppm";
 
-const double aspect_ratio = 16.0 / 9.0;
-const int imageWidth = 400;
-const int imageHeight = static_cast<int>(imageWidth / aspect_ratio);
-const double focalLength = 1.0;
-
-const double viewport_height = 2.0;
-const double viewport_width = viewport_height * (static_cast<double>(imageWidth) / imageHeight);
-
 const int thickness = 15;
 
+const double pi = 3.1415926535897932385;
 
-class Vec2 {
-public:
-    Vec2(int x, int y) : x(x), y(y) {}
+double knowDiscriminant(double a, double b, double c);
+double degrees_to_radians(double degrees);
 
-    int x;
-    int y;
-};
+inline double random_double() {
+    static std::uniform_real_distribution<double> distribution(0.0, 1.0);
+    static std::mt19937 generator;
+    return distribution(generator);
+}
+
+inline double random_double(double min, double max) {
+    return min + (max - min) * random_double();
+}
 
 class Vec3 {
 public:
@@ -31,9 +33,36 @@ public:
     Vec3() : x(0), y(0), z(0) {}
     Vec3(double x, double y, double z) : x(x), y(y), z(z) {}
 
-    Vec3 unitVector() const {
-        double length = std::sqrt(x * x + y * y + z * z);
-        return Vec3(x / length, y / length, z / length);
+    double length() const {
+        return sqrt(lengthSquared());
+    }
+
+    static double dot(const Vec3& u, const Vec3& v) {
+        return u.x * v.x + u.y * v.y + u.z * v.z;
+    }
+
+    static Vec3 unitVector(const Vec3& v) {
+        return v / v.length();
+    }
+
+    static Vec3 randomInUnitSphere() {
+        while (true) {
+            auto p = Vec3::random(-1, 1);
+            if (p.lengthSquared() < 1)
+                return p;
+        }
+    }
+
+    static Vec3 randomUnitVector() {
+        return unitVector(randomInUnitSphere());
+    }
+
+    inline Vec3 randomOnHemisphere(const Vec3& normal) {
+        Vec3 onUnitSphere = randomUnitVector();
+        if (dot(onUnitSphere, normal) > 0.0) // In the same hemisphere as the normal
+            return onUnitSphere;
+        else
+            return -onUnitSphere;
     }
 
     Vec3 operator+(const Vec3& other) const {
@@ -52,8 +81,16 @@ public:
         return Vec3(x * scalar, y * scalar, z * scalar);
     }
 
-    Vec3 operator*(Vec3 other) const {
-        return Vec3(x * other.x, y * other.y, z * other.z);
+    double lengthSquared() const {
+        return x * x + y * y + z * z;
+    }
+
+    static Vec3 random() {
+        return Vec3(random_double(), random_double(), random_double());
+    }
+
+    static Vec3 random(double min, double max) {
+        return Vec3(random_double(min, max), random_double(min, max), random_double(min, max));
     }
 
     double ScalaringWith(Vec3 other) const {
@@ -67,58 +104,51 @@ public:
     Vec3 operator^(double scalar) const {
         return Vec3(pow(x, scalar), pow(y, scalar), pow(z, scalar));
     }
+
+    Vec3 operator-() const {
+        return Vec3(-x, -y, -z);
+    }
 };
 
-class Color {
+class Color : public Vec3 {
 public:
-    Color(double r = 0, double g = 0, double b = 0) : r(r), g(g), b(b) {}
+    Color(const Vec3& vec) : Vec3(vec) {}
 
-    // Set color(0-255) based on one coordinate(∞)
+    Color(double r, double g, double b) : Vec3(r, g, b) {}
 
-    std::ofstream& writeColor(std::ofstream& outputFile) {
-        // Write the translated [0,255] value of each color component.
-        outputFile << static_cast<int>(255.999 * r) << ' '
-            << static_cast<int>(255.999 * g) << ' '
-            << static_cast<int>(255.999 * b) << '\n';
-        return outputFile;
-    }
-
-    Color setColor(const Color& otherColor) {
-        r = otherColor.r;
-        g = otherColor.g;
-        b = otherColor.b;
+    Color& setColor(double r, double g, double b) {
+        x = r;
+        y = g;
+        z = b;
         return *this;
     }
 
-    std::ofstream& outPut(std::ofstream& outputFile) {
-        outputFile << static_cast<int>(r) << " " << static_cast<int>(g) << " " << static_cast<int>(b) << " " << std::endl;
-        return outputFile;
+    Color& setColor(Color color) {
+        x = color.x;
+        y = color.y;
+        z = color.z;
+        return *this;
     }
 
     Color operator+(const Color& other) const {
-        return Color(r + other.r, g + other.g, b + other.b);
+        return Color(x + other.x, y + other.y, z + other.z);
     }
 
     Color operator-(const Color& other) const {
-        return Color(r - other.r, g - other.g, b - other.b);
+        return Color(x - other.x, y - other.y, z - other.z);
     }
 
     Color operator*(double scalar) const {
-        return Color(r * scalar, g * scalar, b * scalar);
+        return Color(x * scalar, y * scalar, z * scalar);
     }
 
-    Color operator*(Color other) const {
-        return Color(r * other.r, g * other.g, b * other.b);
+    friend Color operator*(double scalar, const Color& color) {
+        return Color(color.x * scalar, color.y * scalar, color.z * scalar);
     }
 
     Color operator/(double scalar) const {
-        return Color(r / scalar, g / scalar, b / scalar);
+        return Color(x / scalar, y / scalar, z / scalar);
     }
-
-private:
-    double r;
-    double g;
-    double b;
 };
 
 class Ray {
@@ -134,4 +164,3 @@ public:
     Vec3 direction;
 };
 
-double knowDiscriminant(double a, double b, double c);

@@ -128,16 +128,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Hittable.h" />
+    <ClCompile Include="HittableList.h" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="FunctionsTracer.cpp" />
-    <ClCompile Include="RayTracer.cpp" />
-    <ClCompile Include="Utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Functions.h" />
-    <ClInclude Include="FunctionsTracer.h" />
-    <ClInclude Include="main.h" />
-    <ClInclude Include="RayTracer.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Interval.h" />
     <ClInclude Include="Utilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
